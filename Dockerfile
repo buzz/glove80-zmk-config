@@ -40,5 +40,3 @@ COPY --chmod=755 <<EOF /bin/entrypoint.sh
 EOF
 
 ENTRYPOINT ["/bin/entrypoint.sh"]
-
-# Run build.sh to use this file
