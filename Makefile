@@ -9,7 +9,7 @@ firmware = glove80.uf2
 keymap = keymap.yaml
 svg = keymap.svg
 
-all: $(firmware) $(svg)
+all: $(firmware) $(svg) $(flash)
 
 $(firmware): Dockerfile config/glove80.conf config/glove80.keymap config/default.nix
 	docker build -t $(IMAGE) --progress=plain .
