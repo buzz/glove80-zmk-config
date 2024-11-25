@@ -22,7 +22,7 @@ $ make BRANCH=v24.08-beta.1
 Use the following keyboard configuration on your Linux computer:
 
 ```sh
-$ setxkbmap -layout us -variant de_se_fi -option eurosign:e -option compose:menu
+$ sudo localectl set-x11-keymap us pc105 de_se_fi eurosign:e,compose:menu
 ```
 
 ## Reference
