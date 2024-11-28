@@ -1,6 +1,16 @@
 draw_config:
+  append_colon_to_layer_header: false
   dark_mode: false
   draw_key_sides: true
+  key_side_pars:
+    rel_x: 0
+    rel_y: 2
+    rel_w: 6
+    rel_h: 6
+    rx: 4
+    ry: 4
+  key_rx: 6
+  key_ry: 6
   n_columns: 1
   mark_alternate_layer_activators: true
   shrink_wide_legends: 6
@@ -9,210 +19,518 @@ draw_config:
   glyph_shifted_size: 15
   svg_extra_style: |
     /* For default sytles, see https://github.com/caksoylar/keymap-drawer/blob/main/keymap_drawer/config.py#L85 */
-    svg.keymap {
-      font-family: Ubuntu Mono, Inconsolata, Consolas, Liberation Mono, Menlo, monospace;
-      font-size: 12px;
-      font-weight: bold;
-      text-rendering: optimizeLegibility;
-    }
-
-    /* Technique borrowed and extended from https://github.com/englmaxi/zmk-config/blob/master/keymap-drawer/config.yaml */
-    .sym_sub_text.tap {
-      translate: -5px 2px;
-      font-size: 20px;
-    }
-    .sym_sub_text.shifted {
-      translate: 10px 13px;
-      font-size: 10px;
-      opacity: 1.0;
-    }
-    .combo.sym_sub_text.tap {
-      translate: -1px 1px;
-    }
-    .combo.sym_sub_text.shifted {
-      translate: 7px 5px;
-      font-size: 10px;
-      opacity: 1.0;
-    }
-
-    /* Variant for symbol next to symbol */
-    .sym_by_sym.tap {
-      translate: -6px 0px;
-    }
-    .sym_by_sym.shifted {
-      translate: 10px 12px;
-      opacity: 1.0;
-    }
 
     :root {
+      --font-muted-opacity: 0.7;
+
+      --tap-font-size: 18px;
+      --tap-font-size-sm: 14px;
+
+      --saturation: 30%;
+      --fill-lightness: 87%;
+      --stroke-offset: 10%;
+      --stroke-lightness: calc(var(--fill-lightness) - var(--stroke-offset));
+
       --layer-fill-lightness: 46%;
-      --layer-stroke-lightness: calc(var(--layer-fill-lightness) - 8%);
-      --layer-base-hue: 0;
-      --layer-base-saturation: 0%;
-      --layer-fill: hsl(var(--layer-base-hue), var(--layer-base-saturation), var(--layer-fill-lightness));
-      --layer-stroke: hsl(var(--layer-base-hue), var(--layer-base-saturation), var(--layer-stroke-lightness));
-      --layer-text: #fff;
+      --layer-stroke-lightness: calc(var(--layer-fill-lightness) - var(--stroke-offset));
+      --layer-fill: hsl(0deg, 0%, var(--layer-fill-lightness));
+      --layer-stroke: hsl(0deg, 0%, var(--layer-stroke-lightness));
+      --layer-text-contrast: #fff;
 
-      --fill-lightness: 82%;
-      --stroke-lightness: calc(var(--fill-lightness) - 8%);
+      --magic-hue: 270deg;
+      --magic-fill: hsl(var(--magic-hue), var(--saturation), var(--fill-lightness));
+      --magic-stroke: hsl(var(--magic-hue), var(--saturation), var(--stroke-lightness));
 
-      --hrm-base-hue: 0;
-      --hrm-base-saturation: 0%;
-      --hrm-fill: hsl(var(--hrm-base-hue), var(--hrm-base-saturation), var(--fill-lightness));
-      --hrm-stroke: hsl(var(--hrm-base-hue), var(--hrm-base-saturation), var(--stroke-lightness));
+      --hrm-hue: 42deg;
+      --hrm-fill: hsl(var(--hrm-hue), var(--saturation), var(--fill-lightness));
+
+      --alt-gaming-fill-lightness: 84%;
+      --alt-gaming-stroke-lightness: calc(var(--alt-gaming-fill-lightness) - var(--stroke-offset));
+      --alt-gaming-fill: hsl(0deg, 0%, var(--alt-gaming-fill-lightness));
+      --alt-gaming-stroke: hsl(0deg, 0%, var(--alt-gaming-stroke-lightness));
+
+      --blue-hue: 200deg;
+      --blue-fill: hsl(var(--blue-hue), var(--saturation), var(--fill-lightness));
+      --blue-stroke: hsl(var(--blue-hue), var(--saturation), var(--stroke-lightness));
+
+      --yellow-hue: 59deg;
+      --yellow-saturation: 80%;
+      --yellow-fill: hsl(var(--yellow-hue), var(--yellow-saturation), var(--fill-lightness));
+      --yellow-stroke: hsl(var(--yellow-hue), var(--yellow-saturation), var(--stroke-lightness));
     }
 
-    /* Key caps: Layer switch */
-    .layer-default .keypos-52 rect.key,
-    .layer-default .keypos-53 rect.key,
-    .layer-default .keypos-54 rect.key,
-    .layer-default .keypos-55 rect.key,
-    .layer-default .keypos-56 rect.key,
-    .layer-default .keypos-57 rect.key,
-    .layer-default .keypos-64 rect.key {
-      fill: var(--layer-fill);
-      stroke: var(--layer-stroke);
-    }
-    .layer-default .keypos-52,
-    .layer-default .keypos-53,
-    .layer-default .keypos-54,
-    .layer-default .keypos-55,
-    .layer-default .keypos-56,
-    .layer-default .keypos-57,
-    .layer-default .keypos-64 {
-      fill: var(--layer-text);
+    svg.keymap {
+      font-family: Ubuntu Mono, Inconsolata, Consolas, Liberation Mono, Menlo, monospace;
+      font-size: var(--tap-font-size);
+      font-weight: regular;
+      text-rendering: optimizeLegibility;
+      translate: 0 -1px;
     }
 
-    /* Key caps: Homerow mods */
-    .layer-default .keypos-35 rect.key,
-    .layer-default .keypos-36 rect.key,
-    .layer-default .keypos-37 rect.key,
-    .layer-default .keypos-38 rect.key,
-    .layer-default .keypos-41 rect.key,
-    .layer-default .keypos-42 rect.key,
-    .layer-default .keypos-43 rect.key,
-    .layer-default .keypos-44 rect.key {
+    text.hold {
+      font-size: var(--tap-font-size-sm) !important;
+      font-weight: bold;
+      opacity: var(--font-muted-opacity);
+      translate: 0 -8px;
+    }
+    text.combo {
+      font-size: var(--tap-font-size-sm) !important;
+      font-weight: bold;
+      opacity: var(--font-muted-opacity);
+    }
+    text.hold tspan {
+      font-size: 100% !important;
+    }
+
+    .trans.tap {
+      opacity: 0.7;
+    }
+
+    /* Custom types */
+
+    .fs-sm {
+      font-size: var(--tap-font-size-sm);
+    }
+
+    .homerow_mod rect.key {
       fill: var(--hrm-fill);
       stroke: var(--hrm-stroke);
     }
+    .homerow_mod.shifted {
+      translate: 0 33px;
+    }
+
+    .magic rect.key {
+      fill: var(--magic-fill);
+      stroke: var(--magic-stroke);
+    }
+    .magic.tap {
+      font-size: var(--tap-font-size-sm);
+    }
+    .magic.hold {
+      text-decoration: underline;
+    }
+
+    .layer {
+      fill: var(--layer-text-contrast);
+      text-shadow: 0 0 3px rgba(0 0 0 / 38%);
+    }
+    .layer rect.key {
+      fill: var(--layer-fill);
+      stroke: var(--layer-stroke);
+    }
+    .layer.tap {
+      font-size: var(--tap-font-size-sm);
+    }
+    .layer.hold {
+      text-decoration: underline;
+    }
+
+    .alt_gaming rect.key {
+      fill: var(--alt-gaming-fill);
+      stroke: var(--alt-gaming-stroke);
+    }
+    .alt_gaming.hold {
+      text-decoration: underline;
+    }
+
+    .homerow_mod rect.key {
+      fill: var(--hrm-fill);
+      stroke: var(--hrm-stroke);
+    }
+
+    .blue rect.key {
+      fill: var(--blue-fill);
+      stroke: var(--blue-stroke);
+    }
+
+    .yellow rect.key {
+      fill: var(--yellow-fill);
+      stroke: var(--yellow-stroke);
+    }
+
+    .sub.tap {
+      translate: -5px 2px;
+    }
+    .sub.shifted {
+      translate: 10px 13px;
+      font-size: var(--tap-font-size-sm);
+    }
+
 parse_config:
   raw_binding_map:
-    "&bootloader": BOOT
-    "&sys_reset": RESET
+    # Function keys
+    "&kp F1":
+      tap: F1
+      type: blue
+    "&kp F2":
+      tap: F2
+      type: blue
+    "&kp F3":
+      tap: F3
+      type: blue
+    "&kp F4":
+      tap: F4
+      type: blue
+    "&kp F5":
+      tap: F5
+      type: blue
+    "&kp F6":
+      tap: F6
+      type: blue
+    "&kp F7":
+      tap: F7
+      type: blue
+    "&kp F8":
+      tap: F8
+      type: blue
+    "&kp F9":
+      tap: F9
+      type: blue
+    "&kp F10":
+      tap: F10
+      type: blue
+    "&kp F11":
+      tap: F11
+      type: blue
+    "&kp F12":
+      tap: F12
+      type: blue
+
+    # Symbols
+    "&kp EQUAL":
+      tap: "="
+      type: yellow
+    '&degree_sign':
+      tap: "°"
+      type: yellow
+
+    # Misc
+    "&magic L_MAGIC 0":
+      tap: Status
+      hold: Magic
+      type: magic
+    "&alt_gaming":
+      tap: Alt
+      hold: Gaming
+      type: alt_gaming
     "&caps_word": CAPS WORD
-    "&ralt_gaming": Gaming
-    "&rgb_ug_status_macro": RGB Status
-    "&bt BT_CLR":
-      tap: $$mdi:bluetooth-settings$$
-      shifted: $$mdi:close-thick$$
-      type: sym_sub_text
-    "&bt BT_CLR_ALL":
-      tap: $$mdi:bluetooth-settings$$
-      shifted: $$mdi:close-thick$$
-      hold: $$mdi:asterisk$$
-      type: sym_sub_text
-    '&bt_0':
-      tap: $$mdi:bluetooth-connect$$
-      shifted: '0'
-      type: sym_sub_text
-    '&bt_1':
-      tap: $$mdi:bluetooth-connect$$
-      shifted: '1'
-      type: sym_sub_text
-    '&bt_2':
-      tap: $$mdi:bluetooth-connect$$
-      shifted: '2'
-      type: sym_sub_text
-    '&bt_3':
-      tap: $$mdi:bluetooth-connect$$
-      shifted: '3'
-      type: sym_sub_text
-    '&out OUT_USB': $$mdi:usb$$
+    "&to L_DEFAULT":
+      tap: Base
+      hold: toggle
+      type: layer
+
+    # Thumb
+    "&th L_SYMBOLS TAB":
+      tap: $$mdi:keyboard-tab$$
+      hold: Symbols
+      type: layer
+    "MO_TOG(L_LOWER)":
+      tap: Lower
+      type: layer
+    "MO_TOG(L_WORLD)":
+      tap: World
+      type: layer
+    "&th L_SYMBOLS ESC":
+      tap: Esc
+      hold: symbols
+      type: layer
+
+    # Homerow mods
+    "&hml LGUI A":
+      tap: A
+      shifted: Super
+      type: homerow_mod
+    "&hml LALT S":
+      tap: S
+      shifted: Alt
+      type: homerow_mod
+    "&hml LCTRL D":
+      tap: D
+      shifted: Ctrl
+      type: homerow_mod
+    "&hml LSHIFT F":
+      tap: F
+      shifted: Shift
+      type: homerow_mod
+    "&hmr LSHIFT J":
+      tap: J
+      shifted: Shift
+      type: homerow_mod
+    "&hmr LCTRL K":
+      tap: K
+      shifted: Ctrl
+      type: homerow_mod
+    "&hmr LALT L":
+      tap: L
+      shifted: Alt
+      type: homerow_mod
+    "&hmr LGUI SEMI":
+      tap: ;
+      shifted: Super
+      type: homerow_mod
+
+    # Numblock
     '&kp KP_EQUAL': "="
     '&kp KP_DIVIDE': /
-    '&kp PAUSE_BREAK': Break
+    '&kp PAUSE_BREAK':
+      tap: Break
+      type: fs-sm
     '&kp KP_MULTIPLY': "*"
     '&kp KP_MINUS': "-"
-    '&kp KP_PLUS': +
+    '&hmr RGUI KP_PLUS':
+      tap: +
+      shifted: Super
+      type: homerow_mod
     '&kp KP_DOT': .
     '&kp KP_ENTER': $$mdi:keyboard-return$$
-    '&kp PSCRN': Print Screen
-    '&kp SLCK': Scroll Lock
+    '&kp PSCRN':
+      tap: Print Screen
+      type: fs-sm
+    '&kp SLCK':
+      tap: Scroll Lock
+      type: fs-sm
     '&kp KP_N0': "0"
     '&kp KP_N1': "1"
     '&kp KP_N2': "2"
     '&kp KP_N3': "3"
-    '&kp KP_N4': "4"
-    '&kp KP_N5': "5"
-    '&kp KP_N6': "6"
+    '&hmr RSHIFT KP_N4':
+      tap: "4"
+      shifted: Shift
+      type: homerow_mod
+    '&hmr RCTRL KP_N5':
+      tap: "5"
+      shifted: Ctrl
+      type: homerow_mod
+    '&hmr RALT KP_N6':
+      tap: "6"
+      shifted: Alt
+      type: homerow_mod
     '&kp KP_N7': "7"
     '&kp KP_N8': "8"
     '&kp KP_N9': "9"
+
+    # Symbols
+    '&kp LC(X)': $$mdi:content-cut$$
+    '&kp LC(C)': $$mdi:content-copy$$
+    '&kp LC(V)': $$mdi:content-paste$$
+    '&kp LC(Z)': $$mdi:undo$$
+    '&kp LC(Y)': $$mdi:redo$$
+
+    # World
+    '&kp RA(A)': Ä
+    '&kp RA(S)': ẞ
+    '&kp RA(E)': €
+    '&kp RA(U)': Ü
+    '&kp RA(O)': Ö
+
+    # Magic
+    "&bootloader": BOOT
+    "&sys_reset": RESET
+    "&bt BT_CLR":
+      tap: $$mdi:bluetooth-settings$$
+      shifted: $$mdi:close-thick$$
+      type: sub
+    "&bt BT_CLR_ALL":
+      tap: $$mdi:bluetooth-settings$$
+      shifted: $$mdi:close-thick$$
+      hold: $$mdi:asterisk$$
+      type: sub
+    '&bt_0':
+      tap: $$mdi:bluetooth-connect$$
+      shifted: '0'
+      type: sub
+    '&bt_1':
+      tap: $$mdi:bluetooth-connect$$
+      shifted: '1'
+      type: sub
+    '&bt_2':
+      tap: $$mdi:bluetooth-connect$$
+      shifted: '2'
+      type: sub
+    '&bt_3':
+      tap: $$mdi:bluetooth-connect$$
+      shifted: '3'
+      type: sub
+    '&out OUT_USB': $$mdi:usb$$
+
   zmk_keycode_map:
     # default values
-    EXCLAMATION: "!"
-    EXCL: "!"
-    AT_SIGN: "@"
-    AT: "@"
-    HASH: "#"
-    POUND: "#"
-    DOLLAR: $
-    DLLR: $
-    PERCENT: "%"
-    PRCNT: "%"
-    CARET: ^
-    AMPERSAND: "&"
-    AMPS: "&"
-    ASTERISK: "*"
-    ASTRK: "*"
-    STAR: "*"
-    LEFT_PARENTHESIS: (
-    LPAR: (
-    RIGHT_PARENTHESIS: )
-    RPAR: )
-    EQUAL: "="
-    PLUS: +
-    MINUS: "-"
-    UNDERSCORE: _
-    UNDER: _
-    SLASH: /
-    FSLH: /
-    QUESTION: "?"
-    QMARK: "?"
-    BACKSLASH: '\'
-    BSLH: '\'
-    PIPE: "|"
-    NON_US_BACKSLASH: '\'
+    EXCLAMATION:
+      tap: "!"
+      type: yellow
+    EXCL:
+      tap: "!"
+      type: yellow
+    AT_SIGN:
+      tap: "@"
+      type: yellow
+    AT:
+      tap: "@"
+      type: yellow
+    HASH:
+      tap: "#"
+      type: yellow
+    POUND:
+      tap: "#"
+      type: yellow
+    DOLLAR:
+      tap: $
+      type: yellow
+    DLLR:
+      tap: $
+      type: yellow
+    PERCENT:
+      tap: "%"
+      type: yellow
+    PRCNT:
+      tap: "%"
+      type: yellow
+    CARET:
+      tap: ^
+      type: yellow
+    AMPERSAND:
+      tap: "&"
+      type: yellow
+    AMPS:
+      tap: "&"
+      type: yellow
+    ASTERISK:
+      tap: "*"
+      type: yellow
+    ASTRK:
+      tap: "*"
+      type: yellow
+    STAR:
+      tap: "*"
+      type: yellow
+    LEFT_PARENTHESIS:
+      tap: (
+      type: yellow
+    LPAR:
+      tap: (
+      type: yellow
+    RIGHT_PARENTHESIS:
+      tap: )
+      type: yellow
+    RPAR:
+      tap: )
+      type: yellow
+    EQUAL:
+      tap: "="
+      type: yellow
+    PLUS:
+      tap: +
+      type: yellow
+    MINUS:
+      tap: "-"
+      type: yellow
+    UNDERSCORE:
+      tap: _
+      type: yellow
+    UNDER:
+      tap: _
+      type: yellow
+    SLASH:
+      tap: /
+      type: yellow
+    FSLH:
+      tap: /
+      type: yellow
+    QUESTION:
+      tap: "?"
+      type: yellow
+    QMARK:
+      tap: "?"
+      type: yellow
+    BACKSLASH:
+      tap: '\'
+      type: yellow
+    BSLH:
+      tap: '\'
+      type: yellow
+    PIPE:
+      tap: "|"
+      type: yellow
+    NON_US_BACKSLASH:
+      tap: '\'
+      type: yellow
     PIPE2: "|"
-    NON_US_BSLH: "|"
-    SEMI: ;
-    COLON: ":"
-    SINGLE_QUOTE: "'"
-    SQT: "'"
-    APOSTROPHE: "'"
-    APOS: "'"
-    DOUBLE_QUOTES: '"'
-    DQT: '"'
-    COMMA: ","
-    LESS_THAN: <
-    LT: <
-    PERIOD: .
-    DOT: .
-    GREATER_THAN: ">"
-    GT: ">"
-    LBKT: "["
-    RBKT: "]"
-    LBRC: "{"
-    RBRC: "}"
-    GRAVE: "`"
-    TILDE: "~"
-    NON_US_HASH: "#"
-    NUHS: "#"
+    NON_US_BSLH:
+      tap: "|"
+      type: yellow
+    SEMI:
+      tap: ;
+      type: yellow
+    COLON:
+      tap: ":"
+      type: yellow
+    SINGLE_QUOTE:
+      tap: "'"
+      type: yellow
+    SQT:
+      tap: "'"
+      type: yellow
+    APOSTROPHE:
+      tap: "'"
+      type: yellow
+    APOS:
+      tap: "'"
+      type: yellow
+    DOUBLE_QUOTES:
+      tap: '"'
+      type: yellow
+    DQT:
+      tap: '"'
+      type: yellow
+    COMMA:
+      tap: ","
+      type: yellow
+    LESS_THAN:
+      tap: <
+      type: yellow
+    LT:
+      tap: <
+      type: yellow
+    PERIOD:
+      tap: .
+      type: yellow
+    DOT:
+      tap: .
+      type: yellow
+    GREATER_THAN:
+      tap: ">"
+      type: yellow
+    GT:
+      tap: ">"
+      type: yellow
+    LBKT:
+      tap: "["
+      type: yellow
+    RBKT:
+      tap: "]"
+      type: yellow
+    LBRC:
+      tap: "{"
+      type: yellow
+    RBRC:
+      tap: "}"
+      type: yellow
+    GRAVE:
+      tap: "`"
+      type: yellow
+    TILDE:
+      tap: "~"
+      type: yellow
+    NON_US_HASH:
+      tap: "#"
+      type: yellow
+    NUHS:
+      tap: "#"
+      type: yellow
     TILDE2: "~"
 
     # custom values
-    PAGE_UP: PgUp
-    PAGE_DOWN: PgDn
     HOME: Home
     INS: Ins
     END: End
@@ -250,4 +568,10 @@ parse_config:
     LGUI: Super
     RGUI: Super
 
-    KP_NUM: Numlock
+    KP_NUM: Num Lock
+
+  zmk_combos:
+    combo_boot:
+      align: right
+      o: 0.25
+      arc_scale: 1

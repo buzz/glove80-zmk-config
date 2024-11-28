@@ -19,35 +19,31 @@
 #define L_GAMING 4
 #define L_MAGIC 5
 
+// Troubleshooting/timings: https://github.com/urob/zmk-config?tab=readme-ov-file#troubleshooting
+
 // How long you have to hold a key for it to count as a "hold" instead of just a "tap"
-#define THUMB_HOLDING_TIME 200
+#define DEFAULT_HOLDING_TIME 200
 
-// Lower the value if you frequently end up with accidental capital letters when you
-// only intended to type lowercase.
-#define HOMEROW_INDEX_HOLDING_TIME 220
-#define HOMEROW_MIDDLE_HOLDING_TIME 260
-#define HOMEROW_RING_HOLDING_TIME 290
-#define HOMEROW_PINKY_HOLDING_TIME 310
+// Homerow mod hold time
+#define HRM_HOLDTIME 280
 
-// Defines how long you need to wait after typing before you can use home row mods again.
 // It prevents unintended activation of home row mods when you're actively typing.
-#define HOMEROW_INDEX_STREAK_DECAY 150
-#define HOMEROW_STREAK_DECAY 200
+#define HOMEROW_STREAK_DECAY 270 // before I used 150
 
 // Time you have left after tapping a key to hold it again to make it auto-repeat.
-#define REPEAT_DECAY 300
+#define REPEAT_DECAY 175
 
 // Apply momentary-layer-on-hold/toggle-layer-on-tap to a specific layer
 #define MO_TOG(layer) &mo_tog layer layer
 
 // Unicode sequence
-#define UNICODE_TAP_DELAY 1
-#define UNICODE(_name_, _keystrokes_) \
-    _name_: _name_ { \
-        compatible = "zmk,behavior-macro"; \
-        wait-ms = <UNICODE_TAP_DELAY>; \
-        tap-ms = <UNICODE_TAP_DELAY>; \
-        #binding-cells = <0>; \
+#define UNICODE_TAP_DELAY 15
+#define UNICODE(_name_, _keystrokes_)                                 \
+    _name_: _name_ {                                                  \
+        compatible = "zmk,behavior-macro";                            \
+        wait-ms = <UNICODE_TAP_DELAY>;                                \
+        tap-ms = <UNICODE_TAP_DELAY>;                                 \
+        #binding-cells = <0>;                                         \
         bindings = <&macro_tap &kp LC(LS(U)) _keystrokes_ &kp ENTER>; \
     };
 
@@ -61,23 +57,12 @@
         // Magic layer
         //////////////////////////////////////////////////////////////////////////
 
-        magicl: magic_hold_tap_l {
+        magic: magic_hold_tap {
             compatible = "zmk,behavior-hold-tap";
-            label = "MAGIC_HOLD_TAP_L";
             #binding-cells = <2>;
             flavor = "tap-preferred";
-            tapping-term-ms = <THUMB_HOLDING_TIME>;
+            tapping-term-ms = <DEFAULT_HOLDING_TIME>;
             bindings = <&mo>, <&rgb_ug_status_macro>;
-        };
-
-        // Right magic (for putting right half into flash mode w/o left half)
-        magicr: magic_hold_tap_r {
-            compatible = "zmk,behavior-hold-tap";
-            label = "MAGIC_HOLD_TAP_R";
-            #binding-cells = <2>;
-            flavor = "tap-preferred";
-            tapping-term-ms = <THUMB_HOLDING_TIME>;
-            bindings = <&mo>, <&kp>;
         };
 
         //////////////////////////////////////////////////////////////////////////
@@ -99,77 +84,71 @@
         // Timeless homerow mods
         // https://github.com/urob/zmk-config?tab=readme-ov-file#timeless-homerow-mods
         // https://docs.google.com/spreadsheets/d/1ESgObQelyz4lnKlfwLYsmofLJulOMK5RdGBsopLe2o8/edit
-        #define LEFT_HAND_KEYS                                                              \
-              0  1  2  3  4                                                                 \
-             10 11 12 13 14 15                                                              \
-             22 23 24 25 26 27                                                              \
-             34 35 36 37 38 39                                                              \
-             46 47 48 49 50 51                                                              \
+        #define LEFT_HAND_KEYS                                      \
+              0  1  2  3  4                                         \
+             10 11 12 13 14 15                                      \
+             22 23 24 25 26 27                                      \
+             34 35 36 37 38 39                                      \
+             46 47 48 49 50 51                                      \
              64 65 66 67 68
-        #define RIGHT_HAND_KEYS                                                             \
-                                               5  6  7  8  9                                \
-                                           16 17 18 19 20 21                                \
-                                           28 29 30 31 32 33                                \
-                                           40 41 42 43 44 45                                \
-                                           58 59 60 61 62 63                                \
+        #define RIGHT_HAND_KEYS                                     \
+                                               5  6  7  8  9        \
+                                           16 17 18 19 20 21        \
+                                           28 29 30 31 32 33        \
+                                           40 41 42 43 44 45        \
+                                           58 59 60 61 62 63        \
                                               75 76 77 78 79
-        #define THUMB_KEYS                                                                  \
-                            69 52       57 74                                               \
-                             70 53     56 73                                                \
+        #define THUMB_KEYS                                          \
+                            69 52       57 74                       \
+                             70 53     56 73                        \
                               71 54   55 72
 
-        #define DEFINE_HOMEROW_MOD(_name_, _label_, _holding_time_, _streak_decay_, _keys_) \
-            _name_: _name_ {                                                                \
-                compatible = "zmk,behavior-hold-tap";                                       \
-                label = _label_;                                                            \
-                bindings = <&kp>, <&kp>;                                                    \
-                #binding-cells = <2>;                                                       \
-                tapping-term-ms = _holding_time_;                                           \
-                require-prior-idle-ms = _streak_decay_;                                     \
-                flavor = "tap-preferred";                                                   \
-                hold-trigger-key-positions = _keys_;                                        \
-                quick-tap-ms = <REPEAT_DECAY>;                                              \
-            }
+        #define HOMEROW_MOD(_name_, _htkeys_)                       \
+            _name_: _name_ {                                        \
+                compatible = "zmk,behavior-hold-tap";               \
+                flavor = "balanced";                                \
+                tapping-term-ms = <HRM_HOLDTIME>;                   \
+                /* repeat on tap-into-hold */                       \
+                quick-tap-ms = <REPEAT_DECAY>;                      \
+                require-prior-idle-ms = <HOMEROW_STREAK_DECAY>;     \
+                #binding-cells = <2>;                               \
+                bindings = <&kp>, <&kp>;                            \
+                hold-trigger-key-positions = <_htkeys_ THUMB_KEYS>; \
+                /* delay positional check until key-release */      \
+                hold-trigger-on-release;                            \
+            };
 
-        DEFINE_HOMEROW_MOD(hm_idx_l, "hm_idx_l", <HOMEROW_INDEX_HOLDING_TIME>, <HOMEROW_INDEX_STREAK_DECAY>, <RIGHT_HAND_KEYS THUMB_KEYS>);
-        DEFINE_HOMEROW_MOD(hm_idx_r, "hm_idx_r", <HOMEROW_INDEX_HOLDING_TIME>, <HOMEROW_INDEX_STREAK_DECAY>, <LEFT_HAND_KEYS THUMB_KEYS>);
-
-        DEFINE_HOMEROW_MOD(hm_mid_l, "hm_mid_l", <HOMEROW_MIDDLE_HOLDING_TIME>, <HOMEROW_STREAK_DECAY>, <RIGHT_HAND_KEYS THUMB_KEYS>);
-        DEFINE_HOMEROW_MOD(hm_mid_r, "hm_mid_r", <HOMEROW_MIDDLE_HOLDING_TIME>, <HOMEROW_STREAK_DECAY>, <LEFT_HAND_KEYS THUMB_KEYS>);
-
-        DEFINE_HOMEROW_MOD(hm_rng_l, "hm_rng_l", <HOMEROW_RING_HOLDING_TIME>, <HOMEROW_STREAK_DECAY>, <RIGHT_HAND_KEYS THUMB_KEYS>);
-        DEFINE_HOMEROW_MOD(hm_rng_r, "hm_rng_r", <HOMEROW_RING_HOLDING_TIME>, <HOMEROW_STREAK_DECAY>, <LEFT_HAND_KEYS THUMB_KEYS>);
-
-        DEFINE_HOMEROW_MOD(hm_pnk_l, "hm_pnk_l", <HOMEROW_PINKY_HOLDING_TIME>, <HOMEROW_STREAK_DECAY>, <RIGHT_HAND_KEYS THUMB_KEYS>);
-        DEFINE_HOMEROW_MOD(hm_pnk_r, "hm_pnk_r", <HOMEROW_PINKY_HOLDING_TIME>, <HOMEROW_STREAK_DECAY>, <LEFT_HAND_KEYS THUMB_KEYS>);
+        HOMEROW_MOD(hml, RIGHT_HAND_KEYS)
+        HOMEROW_MOD(hmr, LEFT_HAND_KEYS)
 
         //////////////////////////////////////////////////////////////////////////
         // Thumb keys
         //////////////////////////////////////////////////////////////////////////
 
-        // thumb: hold layer, tap key
-        th: thumb_key_layer {
+        // tap: press key, hold: momentary layer
+        mo_kp: behav_mo_kp {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             flavor = "balanced";
-            tapping-term-ms = <THUMB_HOLDING_TIME>;
+            tapping-term-ms = <DEFAULT_HOLDING_TIME>;
             bindings = <&mo>, <&kp>;
         };
 
-        mo_tog: behavior_mo_tog {
+        // tap: toggle layer, hold: momentary layer
+        mo_tog: behav_mo_tog {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             flavor = "balanced";
-            tapping-term-ms = <THUMB_HOLDING_TIME>;
+            tapping-term-ms = <DEFAULT_HOLDING_TIME>;
             bindings = <&mo>, <&tog>;
         };
 
-        // RALT / double tap: gaming layer
-        ralt_gaming: tap_dance_lalt_gaming {
+        // ALT / double tap: gaming layer
+        alt_gaming: tap_dance_lalt_gaming {
             compatible = "zmk,behavior-tap-dance";
             #binding-cells = <0>;
-            tapping-term-ms = <THUMB_HOLDING_TIME>;
-            bindings = <&mt RALT RALT>, <&to L_GAMING>;
+            tapping-term-ms = <DEFAULT_HOLDING_TIME>;
+            bindings = <&mt LALT LALT>, <&to L_GAMING>;
         };
     };
 
@@ -185,7 +164,6 @@
         //////////////////////////////////////////////////////////////////////////
 
         rgb_ug_status_macro: rgb_ug_status_macro_0 {
-            label = "RGB_UG_STATUS";
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             bindings
@@ -193,7 +171,6 @@
         };
 
         bt_0: bt_profile_macro_0 {
-            label = "BT_0";
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             bindings
@@ -202,7 +179,6 @@
         };
 
         bt_1: bt_profile_macro_1 {
-            label = "BT_1";
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             bindings
@@ -211,7 +187,6 @@
         };
 
         bt_2: bt_profile_macro_2 {
-            label = "BT_2";
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             bindings
@@ -220,7 +195,6 @@
         };
 
         bt_3: bt_profile_macro_3 {
-            label = "BT_3";
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             bindings
@@ -238,57 +212,57 @@
 
         layer_default {
             bindings = <
-            &kp F1             &kp F2            &kp F3            &kp F4             &kp F5                                                                                                                                        &kp F6              &kp F7             &kp F8            &kp F9               &kp F10
-            &kp EQUAL          &kp N1            &kp N2            &kp N3             &kp N4              &kp N5                                                                                                            &kp N6  &kp N7              &kp N8             &kp N9            &kp N0               &kp MINUS
-            &kp TAB            &kp Q             &kp W             &kp E              &kp R               &kp T                                                                                                             &kp Y   &kp U               &kp I              &kp O             &kp P                &kp BSLH
-            &kp ESC            &hm_pnk_l LGUI A  &hm_rng_l LALT S  &hm_mid_l LCTRL D  &hm_idx_l LSHIFT F  &kp G                                                                                                             &kp H   &hm_idx_r LSHIFT J  &hm_mid_r LCTRL K  &hm_rng_r LALT L  &hm_pnk_r LGUI SEMI  &kp SQT
-            &kp GRAVE          &kp Z             &kp X             &kp C              &kp V               &kp B   &th L_SYMBOLS TAB  MO_TOG(L_LOWER)  MO_TOG(L_WORLD)  MO_TOG(L_WORLD)  MO_TOG(L_LOWER)  &th L_SYMBOLS ESC  &kp N   &kp M               &kp COMMA          &kp DOT           &kp FSLH             &kp PG_UP
-            &magicl L_MAGIC 0  &kp HOME          &kp END           &kp LEFT           &kp RIGHT                   &kp BSPC           &kp DEL          &kp LALT         &ralt_gaming     &kp RET          &kp SPACE                  &kp UP              &kp DOWN           &kp LBKT          &kp RBKT             &magicr L_MAGIC PG_DN
+            &kp F1            &kp F2       &kp F3       &kp F4        &kp F5                                                                                                                                           &kp F6         &kp F7        &kp F8       &kp F9          &kp F10
+            &kp EQUAL         &kp N1       &kp N2       &kp N3        &kp N4         &kp N5                                                                                                                  &kp N6    &kp N7         &kp N8        &kp N9       &kp N0          &kp MINUS
+            &kp TAB           &kp Q        &kp W        &kp E         &kp R          &kp T                                                                                                                   &kp Y     &kp U          &kp I         &kp O        &kp P           &kp BSLH
+            &kp ESC           &hml LGUI A  &hml LALT S  &hml LCTRL D  &hml LSHIFT F  &kp G                                                                                                                   &kp H     &hmr LSHIFT J  &hmr LCTRL K  &hmr LALT L  &hmr LGUI SEMI  &kp SQT
+            &kp GRAVE         &kp Z        &kp X        &kp C         &kp V          &kp B   &mo_kp L_SYMBOLS TAB  MO_TOG(L_LOWER)  MO_TOG(L_WORLD)  MO_TOG(L_WORLD)  MO_TOG(L_LOWER)  &mo_kp L_SYMBOLS ESC  &kp N     &kp M          &kp COMMA     &kp DOT      &kp FSLH        &kp PG_UP
+            &magic L_MAGIC 0  &kp HOME     &kp END      &kp LEFT      &kp RIGHT              &kp BSPC              &kp DEL          &kp LCTRL        &alt_gaming      &kp RET          &kp SPACE                       &kp UP         &kp DOWN      &kp LBKT     &kp RBKT        &kp PG_DN
             >;
         };
 
         layer_lower {
             bindings = <
-            &none  &none       &kp C_PREV  &kp C_NEXT  &kp C_PP                                                                                &kp C_MUTE              &kp C_VOL_DN           &kp C_VOL_UP          &none                   &kp PAUSE_BREAK
-            &none  &none       &none       &none       &none      &none                                                             &kp LPAR   &kp KP_NUM              &kp KP_EQUAL           &kp KP_DIVIDE         &kp KP_MULTIPLY         &kp PSCRN
-            &none  &none       &kp HOME    &kp UP      &kp END    &kp INS                                                           &kp RPAR   &kp KP_N7               &kp KP_N8              &kp KP_N9             &kp KP_MINUS            &kp SLCK
-            &none  &kp CAPS    &kp LEFT    &kp DOWN    &kp RIGHT  &kp PG_UP                                                         &kp PRCNT  &hm_idx_r RSHIFT KP_N4  &hm_mid_r RCTRL KP_N5  &hm_rng_r RALT KP_N6  &hm_pnk_r RGUI KP_PLUS  &none
-            &none  &caps_word  &none       &kp F11     &kp F12    &kp PG_DN  &trans  &trans  &to L_DEFAULT  &trans  &trans  &trans  &kp COMMA  &kp KP_N1               &kp KP_N2              &kp KP_N3             &kp KP_ENTER            &trans
-            &none  &none       &none       &kp F11     &kp F12               &trans  &trans  &trans         &trans  &trans  &trans             &kp KP_N0               &kp KP_N0              &kp KP_DOT            &kp KP_ENTER            &trans
+            &kp F11           &kp F12  &kp C_PREV  &kp C_NEXT  &kp C_PP                                                                                                    &none              &none             &none            &none              &none
+            &none             &trans   &trans      &trans      &trans     &trans                                                                                &kp LPAR   &kp KP_NUM         &kp KP_EQUAL      &kp KP_DIVIDE    &kp KP_MULTIPLY    &kp PAUSE_BREAK
+            &trans            &none    &kp HOME    &kp UP      &kp PG_UP  &kp INS                                                                               &kp RPAR   &kp KP_N7          &kp KP_N8         &kp KP_N9        &kp KP_MINUS       &kp PSCRN
+            &trans            &none    &kp LEFT    &kp DOWN    &kp RIGHT  &kp CAPS                                                                              &kp PRCNT  &hmr RSHIFT KP_N4  &hmr RCTRL KP_N5  &hmr RALT KP_N6  &hmr RGUI KP_PLUS  &kp SLCK
+            &none             &none    &kp END     &none       &kp PG_DN  &caps_word  &trans      &trans        &to L_DEFAULT  &none      &kp LC(Y)  &kp LC(Z)  &kp COMMA  &kp KP_N1          &kp KP_N2         &kp KP_N3        &kp KP_ENTER       &trans
+            &magic L_MAGIC 0  &none    &none       &none       &none                  &kp C_MUTE  &kp C_VOL_DN  &kp C_VOL_UP   &kp LC(X)  &kp LC(C)  &kp LC(V)             &kp KP_N0          &kp KP_N0         &kp KP_DOT       &kp KP_ENTER       &trans
             >;
         };
 
         layer_symbols {
             bindings = <
-            &none              &none      &none      &none      &none                                                                      &none      &none     &none     &none      &none
-            &none              &none      &none      &none      &none      &none                                                &none      &none      &none     &none     &none      &none
-            &degree_sign       &kp SQT    &kp LT     &kp DQT    &kp GT     &kp DOT                                              &kp AMPS   &kp UNDER  &kp LBKT  &kp RBKT  &kp PRCNT  &none
-            &none              &kp EXCL   &kp MINUS  &kp EQUAL  &kp PLUS   &kp HASH                                             &kp PIPE   &kp COLON  &kp LPAR  &kp RPAR  &kp QMARK  &none
-            &none              &kp CARET  &kp SLASH  &kp BSLH   &kp ASTRK  &kp GRAVE  &none  &none  &none  &none  &none  &none  &kp TILDE  &kp DLLR   &kp LBRC  &kp RBRC  &kp AT     &none
-            &magicl L_MAGIC 0  &none      &none      &none      &none                 &none  &none  &none  &none  &none  &none             &none      &none     &none     &none      &none
+            &none             &none         &none      &none      &none                                                                                            &none      &none     &none     &none      &none
+            &none             &none         &none      &none      &none      &none                                                                      &none      &none      &none     &none     &none      &none
+            &none             &degree_sign  &kp LT     &kp CARET  &kp GT     &kp HASH                                                                   &kp AMPS   &kp UNDER  &kp LBKT  &kp RBKT  &kp PRCNT  &none
+            &none             &kp EXCL      &kp MINUS  &kp EQUAL  &kp PLUS   &kp DOT                                                                    &kp PIPE   &kp COLON  &kp LPAR  &kp RPAR  &kp QMARK  &none
+            &none             &none         &kp SLASH  &kp BSLH   &kp ASTRK  &kp COMMA  &none    &none    &none      &trans  &trans  &trans  &kp TILDE  &kp DLLR   &kp LBRC   &kp RBRC  &kp AT    &none
+            &magic L_MAGIC 0  &none         &none      &none      &none                 &kp SQT  &kp DQT  &kp GRAVE  &trans  &trans  &trans             &none      &none      &none     &none     &none
             >;
         };
 
        layer_world {
             bindings = <
-            &trans  &trans     &trans     &trans     &trans                                                                    &trans     &trans  &trans     &trans  &trans
-            &trans  &trans     &trans     &trans     &trans  &trans                                                    &trans  &trans     &trans  &trans     &trans  &trans
-            &trans  &trans     &trans     &kp RA(E)  &trans  &trans                                                    &trans  &kp RA(U)  &trans  &kp RA(O)  &trans  &trans
-            &trans  &kp RA(A)  &kp RA(S)  &trans     &trans  &trans                                                    &trans  &trans     &trans  &trans     &trans  &trans
-            &trans  &trans     &trans     &trans     &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans     &trans  &trans     &trans  &trans
-            &trans  &trans     &trans     &trans     &trans          &trans  &trans  &trans    &trans  &trans  &trans          &trans     &trans  &trans     &trans  &trans
+            &trans            &trans     &trans     &trans     &trans                                                                    &trans     &trans  &trans     &trans  &trans
+            &trans            &trans     &trans     &trans     &trans  &trans                                                    &trans  &trans     &trans  &trans     &trans  &trans
+            &trans            &trans     &trans     &kp RA(E)  &trans  &trans                                                    &trans  &kp RA(U)  &trans  &kp RA(O)  &trans  &trans
+            &trans            &kp RA(A)  &kp RA(S)  &trans     &trans  &trans                                                    &trans  &trans     &trans  &trans     &trans  &trans
+            &trans            &trans     &trans     &trans     &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans     &trans  &trans     &trans  &trans
+            &magic L_MAGIC 0  &trans     &trans     &trans     &trans          &trans  &trans  &trans    &trans  &trans  &trans          &trans     &trans  &trans     &trans  &trans
             >;
         };
 
         // TODO: proper WASD block (look at sunaku)
         layer_gaming {
             bindings = <
-            &kp N       &kp Z       &kp H   &kp B   &kp J                                                                                     &trans    &trans    &trans    &trans     &trans
-            &kp N8      &kp N5      &kp N2  &kp N3  &kp N1  &kp N4                                                                 &trans     &trans    &trans    &trans     &trans    &trans
-            &kp V       &kp ESC     &kp C   &kp X   &kp Q   &kp G                                                                  &kp DOT    &kp U     &kp I     &kp O      &kp SEMI  &kp BSPC
-            &kp LCTRL   &kp LSHIFT  &kp A   &kp W   &kp D   &kp F                                                                  &kp COMMA  &kp LEFT  &kp UP    &kp RIGHT  &kp P     &kp ENTER
-            &kp LSHIFT  &kp TAB     &kp R   &kp S   &kp E   &kp T   &kp LBKT   &kp RBKT  &kp DOT    &trans         &trans  &trans  &kp FSLH   &kp J     &kp DOWN  &kp K      &kp L     &trans
-            &kp GRAVE   &kp N7      &kp N6  &kp M   &kp E           &kp SPACE  &kp LALT  &kp COMMA  &to L_DEFAULT  &trans  &kp L              &trans    &trans    &trans     &trans    &trans
+            &kp F1            &kp F2      &kp F3  &kp F4  &kp F5                                                                                &trans  &trans  &trans  &trans  &trans
+            &kp M             &kp GRAVE   &kp N1  &kp N2  &kp N3  &kp N4                                                                &trans  &trans  &trans  &trans  &trans  &trans
+            &kp G             &kp TAB     &kp Q   &kp W   &kp E   &kp R                                                                 &trans  &trans  &trans  &trans  &trans  &trans
+            &kp U             &kp CAPS    &kp A   &kp S   &kp D   &kp F                                                                 &trans  &trans  &trans  &trans  &trans  &trans
+            &kp I             &kp LSHIFT  &kp Z   &kp X   &kp C   &kp V   &kp LBKT   &kp RBKT  &kp FSLH  &trans         &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+            &magic L_MAGIC 0  &kp LCTRL   &kp J   &kp K   &kp L           &kp ENTER  &kp LALT  &kp BSLH  &to L_DEFAULT  &trans  &trans          &trans  &trans  &trans  &trans  &trans
             >;
         };
 
