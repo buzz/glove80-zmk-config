@@ -11,30 +11,34 @@
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/rgb.h>
 
-// layers
+// Layers
 #define L_DEFAULT 0
-#define L_LOWER 1
+#define L_LOWER   1
 #define L_SYMBOLS 2
-#define L_WORLD 3
-#define L_GAMING 4
-#define L_MAGIC 5
+#define L_GAMING  3
+#define L_MAGIC   4
 
-// Troubleshooting/timings: https://github.com/urob/zmk-config?tab=readme-ov-file#troubleshooting
+// Troubleshooting/timings:
+// https://github.com/urob/zmk-config?tab=readme-ov-file#troubleshooting
+// https://docs.google.com/spreadsheets/d/1ESgObQelyz4lnKlfwLYsmofLJulOMK5RdGBsopLe2o8/edit
 
 // How long you have to hold a key for it to count as a "hold" instead of just a "tap"
-#define DEFAULT_HOLDING_TIME 200
+#define DEFAULT_TAPPING_TERM_MS 200
 
 // Homerow mod hold time
-#define HRM_HOLDTIME 280
+#define HRM_TAPPING_TERM_MS_INDEX  140
+#define HRM_TAPPING_TERM_MS_MIDDLE 220
+#define HRM_TAPPING_TERM_MS_RING   240
+#define HRM_TAPPING_TERM_MS_PINKY  260
 
 // It prevents unintended activation of home row mods when you're actively typing.
-#define HOMEROW_STREAK_DECAY 270 // before I used 150
+#define HRM_REQ_PRIOR_IDLE_MS_INDEX  100
+#define HRM_REQ_PRIOR_IDLE_MS_MIDDLE 150
+#define HRM_REQ_PRIOR_IDLE_MS_RING   150
+#define HRM_REQ_PRIOR_IDLE_MS_PINKY  200
 
 // Time you have left after tapping a key to hold it again to make it auto-repeat.
-#define REPEAT_DECAY 175
-
-// Apply momentary-layer-on-hold/toggle-layer-on-tap to a specific layer
-#define MO_TOG(layer) &mo_tog layer layer
+#define HRM_QUICK_TAP_MS 175
 
 // Unicode sequence
 #define UNICODE_TAP_DELAY 15
@@ -61,7 +65,7 @@
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             flavor = "tap-preferred";
-            tapping-term-ms = <DEFAULT_HOLDING_TIME>;
+            tapping-term-ms = <DEFAULT_TAPPING_TERM_MS>;
             bindings = <&mo>, <&rgb_ug_status_macro>;
         };
 
@@ -103,14 +107,14 @@
                              70 53     56 73                        \
                               71 54   55 72
 
-        #define HOMEROW_MOD(_name_, _htkeys_)                       \
+        #define HOMEROW_MOD(_name_, _tapping_term_ms_, _require_prior_idle_ms_, _htkeys_) \
             _name_: _name_ {                                        \
                 compatible = "zmk,behavior-hold-tap";               \
                 flavor = "balanced";                                \
-                tapping-term-ms = <HRM_HOLDTIME>;                   \
+                tapping-term-ms = <_tapping_term_ms_>;              \
                 /* repeat on tap-into-hold */                       \
-                quick-tap-ms = <REPEAT_DECAY>;                      \
-                require-prior-idle-ms = <HOMEROW_STREAK_DECAY>;     \
+                quick-tap-ms = <HRM_QUICK_TAP_MS>;                  \
+                require-prior-idle-ms = <_require_prior_idle_ms_>;  \
                 #binding-cells = <2>;                               \
                 bindings = <&kp>, <&kp>;                            \
                 hold-trigger-key-positions = <_htkeys_ THUMB_KEYS>; \
@@ -118,37 +122,33 @@
                 hold-trigger-on-release;                            \
             };
 
-        HOMEROW_MOD(hml, RIGHT_HAND_KEYS)
-        HOMEROW_MOD(hmr, LEFT_HAND_KEYS)
+        HOMEROW_MOD(hmli, HRM_TAPPING_TERM_MS_INDEX,  HRM_REQ_PRIOR_IDLE_MS_INDEX,  RIGHT_HAND_KEYS)
+        HOMEROW_MOD(hmlm, HRM_TAPPING_TERM_MS_MIDDLE, HRM_REQ_PRIOR_IDLE_MS_MIDDLE, RIGHT_HAND_KEYS)
+        HOMEROW_MOD(hmlr, HRM_TAPPING_TERM_MS_RING,   HRM_REQ_PRIOR_IDLE_MS_RING,   RIGHT_HAND_KEYS)
+        HOMEROW_MOD(hmlp, HRM_TAPPING_TERM_MS_PINKY,  HRM_REQ_PRIOR_IDLE_MS_PINKY,  RIGHT_HAND_KEYS)
+        HOMEROW_MOD(hmri, HRM_TAPPING_TERM_MS_INDEX,  HRM_REQ_PRIOR_IDLE_MS_INDEX,  LEFT_HAND_KEYS)
+        HOMEROW_MOD(hmrm, HRM_TAPPING_TERM_MS_MIDDLE, HRM_REQ_PRIOR_IDLE_MS_MIDDLE, LEFT_HAND_KEYS)
+        HOMEROW_MOD(hmrr, HRM_TAPPING_TERM_MS_RING,   HRM_REQ_PRIOR_IDLE_MS_RING,   LEFT_HAND_KEYS)
+        HOMEROW_MOD(hmrp, HRM_TAPPING_TERM_MS_PINKY,  HRM_REQ_PRIOR_IDLE_MS_PINKY,  LEFT_HAND_KEYS)
 
         //////////////////////////////////////////////////////////////////////////
         // Thumb keys
         //////////////////////////////////////////////////////////////////////////
 
         // tap: press key, hold: momentary layer
-        mo_kp: behav_mo_kp {
+        mo_kp: mo_kp {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             flavor = "balanced";
-            tapping-term-ms = <DEFAULT_HOLDING_TIME>;
+            tapping-term-ms = <DEFAULT_TAPPING_TERM_MS>;
             bindings = <&mo>, <&kp>;
         };
 
-        // tap: toggle layer, hold: momentary layer
-        mo_tog: behav_mo_tog {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <DEFAULT_HOLDING_TIME>;
-            bindings = <&mo>, <&tog>;
-        };
-
-        // ALT / double tap: gaming layer
-        alt_gaming: tap_dance_lalt_gaming {
+        f10_gaming: f10_gaming {
             compatible = "zmk,behavior-tap-dance";
             #binding-cells = <0>;
-            tapping-term-ms = <DEFAULT_HOLDING_TIME>;
-            bindings = <&mt LALT LALT>, <&to L_GAMING>;
+            tapping-term-ms = <DEFAULT_TAPPING_TERM_MS>;
+            bindings = <&kp F10>, <&to L_GAMING>;
         };
     };
 
@@ -212,57 +212,46 @@
 
         layer_default {
             bindings = <
-            &kp F1            &kp F2       &kp F3       &kp F4        &kp F5                                                                                                                                           &kp F6         &kp F7        &kp F8       &kp F9          &kp F10
-            &kp EQUAL         &kp N1       &kp N2       &kp N3        &kp N4         &kp N5                                                                                                                  &kp N6    &kp N7         &kp N8        &kp N9       &kp N0          &kp MINUS
-            &kp TAB           &kp Q        &kp W        &kp E         &kp R          &kp T                                                                                                                   &kp Y     &kp U          &kp I         &kp O        &kp P           &kp BSLH
-            &kp ESC           &hml LGUI A  &hml LALT S  &hml LCTRL D  &hml LSHIFT F  &kp G                                                                                                                   &kp H     &hmr LSHIFT J  &hmr LCTRL K  &hmr LALT L  &hmr LGUI SEMI  &kp SQT
-            &kp GRAVE         &kp Z        &kp X        &kp C         &kp V          &kp B   &mo_kp L_SYMBOLS TAB  MO_TOG(L_LOWER)  MO_TOG(L_WORLD)  MO_TOG(L_WORLD)  MO_TOG(L_LOWER)  &mo_kp L_SYMBOLS ESC  &kp N     &kp M          &kp COMMA     &kp DOT      &kp FSLH        &kp PG_UP
-            &magic L_MAGIC 0  &kp HOME     &kp END      &kp LEFT      &kp RIGHT              &kp BSPC              &kp DEL          &kp LCTRL        &alt_gaming      &kp RET          &kp SPACE                       &kp UP         &kp DOWN      &kp LBKT     &kp RBKT        &kp PG_DN
+            &kp F1            &kp F2        &kp F3        &kp F4         &kp F5                                                                                                                     &kp F6          &kp F7         &kp F8        &kp F9           &f10_gaming
+            &kp EQUAL         &kp N1        &kp N2        &kp N3         &kp N4          &kp N5                                                                                             &kp N6  &kp N7          &kp N8         &kp N9        &kp N0           &kp MINUS
+            &kp TAB           &kp Q         &kp W         &kp E          &kp R           &kp T                                                                                              &kp Y   &kp U           &kp I          &kp O         &kp P            &kp BSLH
+            &kp ESC           &hmlp LGUI A  &hmlr LALT S  &hmlm LCTRL D  &hmli LSHIFT F  &kp G                                                                                              &kp H   &hmri LSHIFT J  &hmrm LCTRL K  &hmrr LALT L  &hmrp LGUI SEMI  &kp SQT
+            &kp GRAVE         &kp Z         &kp X         &kp C          &kp V           &kp B   &mo_kp L_SYMBOLS TAB  &mo L_LOWER  &none      &none     &mo L_LOWER  &mo_kp L_SYMBOLS ESC  &kp N   &kp M           &kp COMMA      &kp DOT       &kp FSLH         &kp PG_UP
+            &magic L_MAGIC 0  &kp HOME      &kp END       &kp LEFT       &kp RIGHT               &kp BSPC              &kp DEL      &kp LCTRL  &kp LALT  &kp RET      &kp SPACE                     &kp UP          &kp DOWN       &kp LBKT      &kp RBKT         &kp PG_DN
             >;
         };
 
         layer_lower {
             bindings = <
-            &kp F11           &kp F12  &kp C_PREV  &kp C_NEXT  &kp C_PP                                                                                                    &none              &none             &none            &none              &none
-            &none             &trans   &trans      &trans      &trans     &trans                                                                                &kp LPAR   &kp KP_NUM         &kp KP_EQUAL      &kp KP_DIVIDE    &kp KP_MULTIPLY    &kp PAUSE_BREAK
-            &trans            &none    &kp HOME    &kp UP      &kp PG_UP  &kp INS                                                                               &kp RPAR   &kp KP_N7          &kp KP_N8         &kp KP_N9        &kp KP_MINUS       &kp PSCRN
-            &trans            &none    &kp LEFT    &kp DOWN    &kp RIGHT  &kp CAPS                                                                              &kp PRCNT  &hmr RSHIFT KP_N4  &hmr RCTRL KP_N5  &hmr RALT KP_N6  &hmr RGUI KP_PLUS  &kp SLCK
-            &none             &none    &kp END     &none       &kp PG_DN  &caps_word  &trans      &trans        &to L_DEFAULT  &none      &kp LC(Y)  &kp LC(Z)  &kp COMMA  &kp KP_N1          &kp KP_N2         &kp KP_N3        &kp KP_ENTER       &trans
-            &magic L_MAGIC 0  &none    &none       &none       &none                  &kp C_MUTE  &kp C_VOL_DN  &kp C_VOL_UP   &kp LC(X)  &kp LC(C)  &kp LC(V)             &kp KP_N0          &kp KP_N0         &kp KP_DOT       &kp KP_ENTER       &trans
+            &kp F11           &kp F12  &none     &none     &none                                                                                                      &none       &none         &none          &none            &to L_DEFAULT
+            &none             &trans   &trans    &trans    &trans     &trans                                                                               &kp LPAR   &kp KP_NUM  &kp KP_EQUAL  &kp KP_DIVIDE  &kp KP_MULTIPLY  &kp PAUSE_BREAK
+            &none             &none    &kp HOME  &kp UP    &kp PG_UP  &kp INS                                                                              &kp RPAR   &kp KP_N7   &kp KP_N8     &kp KP_N9      &kp KP_MINUS     &kp PSCRN
+            &none             &none    &kp LEFT  &kp DOWN  &kp RIGHT  &kp CAPS                                                                             &kp PRCNT  &kp KP_N4   &kp KP_N5     &kp KP_N6      &kp KP_PLUS      &kp SLCK
+            &none             &none    &kp END   &none     &kp PG_DN  &caps_word  &none       &none         &none         &none      &kp LC(Y)  &kp LC(Z)  &kp COMMA  &kp KP_N1   &kp KP_N2     &kp KP_N3      &kp KP_ENTER     &trans
+            &magic L_MAGIC 0  &none    &none     &none     &none                  &kp C_MUTE  &kp C_VOL_DN  &kp C_VOL_UP  &kp LC(X)  &kp LC(C)  &kp LC(V)             &kp KP_N0   &kp KP_N0     &kp KP_DOT     &kp KP_ENTER     &trans
             >;
         };
 
+        // https://getreuer.info/posts/keyboards/symbol-layer/index.html
         layer_symbols {
             bindings = <
-            &none             &none         &none      &none      &none                                                                                            &none      &none     &none     &none      &none
-            &none             &none         &none      &none      &none      &none                                                                      &none      &none      &none     &none     &none      &none
-            &none             &degree_sign  &kp LT     &kp CARET  &kp GT     &kp HASH                                                                   &kp AMPS   &kp UNDER  &kp LBKT  &kp RBKT  &kp PRCNT  &none
-            &none             &kp EXCL      &kp MINUS  &kp EQUAL  &kp PLUS   &kp DOT                                                                    &kp PIPE   &kp COLON  &kp LPAR  &kp RPAR  &kp QMARK  &none
-            &none             &none         &kp SLASH  &kp BSLH   &kp ASTRK  &kp COMMA  &none    &none    &none      &trans  &trans  &trans  &kp TILDE  &kp DLLR   &kp LBRC   &kp RBRC  &kp AT    &none
-            &magic L_MAGIC 0  &none         &none      &none      &none                 &kp SQT  &kp DQT  &kp GRAVE  &trans  &trans  &trans             &none      &none      &none     &none     &none
+            &none             &none         &none      &none      &none                                                                                          &none      &none     &none     &none      &to L_DEFAULT
+            &none             &none         &none      &none      &none      &none                                                                    &none      &none      &none     &none     &none      &none
+            &none             &degree_sign  &kp LT     &kp CARET  &kp GT     &kp HASH                                                                 &kp AMPS   &kp UNDER  &kp LBKT  &kp RBKT  &kp PRCNT  &none
+            &none             &kp EXCL      &kp MINUS  &kp EQUAL  &kp PLUS   &kp DOT                                                                  &kp PIPE   &kp COLON  &kp LPAR  &kp RPAR  &kp QMARK  &none
+            &none             &none         &kp SLASH  &kp BSLH   &kp ASTRK  &kp COMMA  &none    &none    &none      &none      &kp RA(E)  &kp RA(S)  &kp TILDE  &kp DLLR   &kp LBRC  &kp RBRC  &kp AT     &none
+            &magic L_MAGIC 0  &none         &none      &none      &none                 &kp SQT  &kp DQT  &kp GRAVE  &kp RA(A)  &kp RA(O)  &kp RA(U)             &none      &none     &none     &none      &none
             >;
         };
 
-       layer_world {
-            bindings = <
-            &trans            &trans     &trans     &trans     &trans                                                                    &trans     &trans  &trans     &trans  &trans
-            &trans            &trans     &trans     &trans     &trans  &trans                                                    &trans  &trans     &trans  &trans     &trans  &trans
-            &trans            &trans     &trans     &kp RA(E)  &trans  &trans                                                    &trans  &kp RA(U)  &trans  &kp RA(O)  &trans  &trans
-            &trans            &kp RA(A)  &kp RA(S)  &trans     &trans  &trans                                                    &trans  &trans     &trans  &trans     &trans  &trans
-            &trans            &trans     &trans     &trans     &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans     &trans  &trans     &trans  &trans
-            &magic L_MAGIC 0  &trans     &trans     &trans     &trans          &trans  &trans  &trans    &trans  &trans  &trans          &trans     &trans  &trans     &trans  &trans
-            >;
-        };
-
-        // TODO: proper WASD block (look at sunaku)
         layer_gaming {
             bindings = <
-            &kp F1            &kp F2      &kp F3  &kp F4  &kp F5                                                                                &trans  &trans  &trans  &trans  &trans
-            &kp M             &kp GRAVE   &kp N1  &kp N2  &kp N3  &kp N4                                                                &trans  &trans  &trans  &trans  &trans  &trans
-            &kp G             &kp TAB     &kp Q   &kp W   &kp E   &kp R                                                                 &trans  &trans  &trans  &trans  &trans  &trans
-            &kp U             &kp CAPS    &kp A   &kp S   &kp D   &kp F                                                                 &trans  &trans  &trans  &trans  &trans  &trans
-            &kp I             &kp LSHIFT  &kp Z   &kp X   &kp C   &kp V   &kp LBKT   &kp RBKT  &kp FSLH  &trans         &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-            &magic L_MAGIC 0  &kp LCTRL   &kp J   &kp K   &kp L           &kp ENTER  &kp LALT  &kp BSLH  &to L_DEFAULT  &trans  &trans          &trans  &trans  &trans  &trans  &trans
+            &trans            &trans      &trans  &trans  &trans                                                                     &trans  &trans  &trans  &trans  &to L_DEFAULT
+            &kp M             &kp GRAVE   &kp N1  &kp N2  &kp N3  &kp N4                                                     &trans  &trans  &trans  &trans  &trans  &trans
+            &kp G             &kp TAB     &kp Q   &kp W   &kp E   &kp R                                                      &trans  &trans  &trans  &trans  &trans  &trans
+            &kp U             &kp CAPS    &kp A   &kp S   &kp D   &kp F                                                      &trans  &trans  &trans  &trans  &trans  &trans
+            &kp I             &kp LSHIFT  &kp Z   &kp X   &kp C   &kp V   &kp LBKT  &kp RBKT  &kp FSLH  &kp B  &kp H  &kp N  &trans  &trans  &trans  &trans  &trans  &trans
+            &magic L_MAGIC 0  &kp LCTRL   &kp J   &kp K   &kp L           &kp RET   &kp LALT  &kp BSLH  &kp O  &kp P  &kp T          &trans  &trans  &trans  &trans  &trans
             >;
         };
 

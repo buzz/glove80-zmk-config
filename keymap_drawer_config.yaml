@@ -21,6 +21,8 @@ draw_config:
     /* For default sytles, see https://github.com/caksoylar/keymap-drawer/blob/main/keymap_drawer/config.py#L85 */
 
     :root {
+      --default-color: #f6f8fa;
+
       --font-muted-opacity: 0.7;
 
       --tap-font-size: 18px;
@@ -41,8 +43,9 @@ draw_config:
       --magic-fill: hsl(var(--magic-hue), var(--saturation), var(--fill-lightness));
       --magic-stroke: hsl(var(--magic-hue), var(--saturation), var(--stroke-lightness));
 
-      --hrm-hue: 42deg;
-      --hrm-fill: hsl(var(--hrm-hue), var(--saturation), var(--fill-lightness));
+      --mod-hue: 0deg;
+      --mod-fill: hsl(var(--mod-hue), var(--saturation), var(--fill-lightness));
+      --mod-stroke: hsl(var(--mod-hue), var(--saturation), var(--stroke-lightness));
 
       --alt-gaming-fill-lightness: 84%;
       --alt-gaming-stroke-lightness: calc(var(--alt-gaming-fill-lightness) - var(--stroke-offset));
@@ -53,10 +56,10 @@ draw_config:
       --blue-fill: hsl(var(--blue-hue), var(--saturation), var(--fill-lightness));
       --blue-stroke: hsl(var(--blue-hue), var(--saturation), var(--stroke-lightness));
 
-      --yellow-hue: 59deg;
-      --yellow-saturation: 80%;
-      --yellow-fill: hsl(var(--yellow-hue), var(--yellow-saturation), var(--fill-lightness));
-      --yellow-stroke: hsl(var(--yellow-hue), var(--yellow-saturation), var(--stroke-lightness));
+      --symbol-hue: 59deg;
+      --symbol-saturation: 80%;
+      --symbol-fill: hsl(var(--symbol-hue), var(--symbol-saturation), var(--fill-lightness));
+      --symbol-stroke: hsl(var(--symbol-hue), var(--symbol-saturation), var(--stroke-lightness));
     }
 
     svg.keymap {
@@ -81,7 +84,9 @@ draw_config:
     text.hold tspan {
       font-size: 100% !important;
     }
-
+    rect.held, rect.combo.held {
+      fill: var(--default-color);
+    }
     .trans.tap {
       opacity: 0.7;
     }
@@ -92,11 +97,17 @@ draw_config:
       font-size: var(--tap-font-size-sm);
     }
 
-    .homerow_mod rect.key {
-      fill: var(--hrm-fill);
-      stroke: var(--hrm-stroke);
+    .homerow_mod text.hold {
+      text-shadow: 0 0 10px hsl(0deg 100% 50% / 70%), 0 0 8px hsl(0deg 100% 50% / 70%);
+      fill: black;
+      font-weight: normal;
     }
-    .homerow_mod.shifted {
+
+    .mod rect.key {
+      fill: var(--mod-fill);
+      stroke: var(--mod-stroke);
+    }
+    .mod.shifted {
       translate: 0 33px;
     }
 
@@ -126,27 +137,14 @@ draw_config:
       text-decoration: underline;
     }
 
-    .alt_gaming rect.key {
-      fill: var(--alt-gaming-fill);
-      stroke: var(--alt-gaming-stroke);
-    }
-    .alt_gaming.hold {
-      text-decoration: underline;
-    }
-
-    .homerow_mod rect.key {
-      fill: var(--hrm-fill);
-      stroke: var(--hrm-stroke);
-    }
-
     .blue rect.key {
       fill: var(--blue-fill);
       stroke: var(--blue-stroke);
     }
 
-    .yellow rect.key {
-      fill: var(--yellow-fill);
-      stroke: var(--yellow-stroke);
+    .symbol rect.key {
+      fill: var(--symbol-fill);
+      stroke: var(--symbol-stroke);
     }
 
     .sub.tap {
@@ -187,8 +185,9 @@ parse_config:
     "&kp F9":
       tap: F9
       type: blue
-    "&kp F10":
+    "&f10_gaming":
       tap: F10
+      hold: Gaming
       type: blue
     "&kp F11":
       tap: F11
@@ -200,20 +199,22 @@ parse_config:
     # Symbols
     "&kp EQUAL":
       tap: "="
-      type: yellow
+      type: symbol
     '&degree_sign':
       tap: "°"
-      type: yellow
+      type: symbol
+
+    '&kp RA(A)': Ä
+    '&kp RA(S)': ẞ
+    '&kp RA(E)': €
+    '&kp RA(U)': Ü
+    '&kp RA(O)': Ö
 
     # Misc
     "&magic L_MAGIC 0":
       tap: Status
       hold: Magic
       type: magic
-    "&alt_gaming":
-      tap: Alt
-      hold: Gaming
-      type: alt_gaming
     "&caps_word": CAPS WORD
     "&to L_DEFAULT":
       tap: Base
@@ -221,68 +222,77 @@ parse_config:
       type: layer
 
     # Thumb
-    "&th L_SYMBOLS TAB":
+    "&mo_kp L_SYMBOLS TAB":
       tap: $$mdi:keyboard-tab$$
       hold: Symbols
       type: layer
-    "MO_TOG(L_LOWER)":
+    "&mo L_LOWER":
       tap: Lower
       type: layer
-    "MO_TOG(L_WORLD)":
+    "&mo L_WORLD":
       tap: World
       type: layer
-    "&th L_SYMBOLS ESC":
+    "&mo_kp L_SYMBOLS ESC":
       tap: Esc
       hold: symbols
       type: layer
 
     # Homerow mods
-    "&hml LGUI A":
+    "&hmlp LGUI A":
       tap: A
-      shifted: Super
+      hold: Super
       type: homerow_mod
-    "&hml LALT S":
+    "&hmlr LALT S":
       tap: S
-      shifted: Alt
+      hold: Alt
       type: homerow_mod
-    "&hml LCTRL D":
+    "&hmlm LCTRL D":
       tap: D
-      shifted: Ctrl
+      hold: Ctrl
       type: homerow_mod
-    "&hml LSHIFT F":
+    "&hmli LSHIFT F":
       tap: F
-      shifted: Shift
+      hold: Shift
       type: homerow_mod
-    "&hmr LSHIFT J":
+    "&hmri LSHIFT J":
       tap: J
-      shifted: Shift
+      hold: Shift
       type: homerow_mod
-    "&hmr LCTRL K":
+    "&hmrm LCTRL K":
       tap: K
-      shifted: Ctrl
+      hold: Ctrl
       type: homerow_mod
-    "&hmr LALT L":
+    "&hmrr LALT L":
       tap: L
-      shifted: Alt
+      hold: Alt
       type: homerow_mod
-    "&hmr LGUI SEMI":
+    "&hmrp LGUI SEMI":
       tap: ;
-      shifted: Super
-      type: homerow_mod
+      hold: Super
+      type: homerow_mod symbol
 
     # Numblock
-    '&kp KP_EQUAL': "="
-    '&kp KP_DIVIDE': /
+    '&kp KP_EQUAL':
+      tap: "="
+      type: symbol
+    '&kp KP_DIVIDE':
+      tap: /
+      type: symbol
     '&kp PAUSE_BREAK':
       tap: Break
       type: fs-sm
-    '&kp KP_MULTIPLY': "*"
-    '&kp KP_MINUS': "-"
-    '&hmr RGUI KP_PLUS':
+    '&kp KP_MULTIPLY':
+      tap: "*"
+      type: symbol
+    '&kp KP_PLUS':
       tap: +
-      shifted: Super
-      type: homerow_mod
-    '&kp KP_DOT': .
+      type: symbol
+    '&kp KP_MINUS':
+      tap: "-"
+      type: symbol
+    '&kp KP_DOT':
+      tap: .
+      type: symbol
     '&kp KP_ENTER': $$mdi:keyboard-return$$
     '&kp PSCRN':
       tap: Print Screen
@@ -294,35 +304,19 @@ parse_config:
     '&kp KP_N1': "1"
     '&kp KP_N2': "2"
     '&kp KP_N3': "3"
-    '&hmr RSHIFT KP_N4':
-      tap: "4"
-      shifted: Shift
-      type: homerow_mod
-    '&hmr RCTRL KP_N5':
-      tap: "5"
-      shifted: Ctrl
-      type: homerow_mod
-    '&hmr RALT KP_N6':
-      tap: "6"
-      shifted: Alt
-      type: homerow_mod
+    '&kp KP_N4': "4"
+    '&kp KP_N5': "5"
+    '&kp KP_N6': "6"
     '&kp KP_N7': "7"
     '&kp KP_N8': "8"
     '&kp KP_N9': "9"
 
-    # Symbols
+    # Special functions
     '&kp LC(X)': $$mdi:content-cut$$
     '&kp LC(C)': $$mdi:content-copy$$
     '&kp LC(V)': $$mdi:content-paste$$
     '&kp LC(Z)': $$mdi:undo$$
     '&kp LC(Y)': $$mdi:redo$$
-
-    # World
-    '&kp RA(A)': Ä
-    '&kp RA(S)': ẞ
-    '&kp RA(E)': €
-    '&kp RA(U)': Ü
-    '&kp RA(O)': Ö
 
     # Magic
     "&bootloader": BOOT
@@ -358,176 +352,176 @@ parse_config:
     # default values
     EXCLAMATION:
       tap: "!"
-      type: yellow
+      type: symbol
     EXCL:
       tap: "!"
-      type: yellow
+      type: symbol
     AT_SIGN:
       tap: "@"
-      type: yellow
+      type: symbol
     AT:
       tap: "@"
-      type: yellow
+      type: symbol
     HASH:
       tap: "#"
-      type: yellow
+      type: symbol
     POUND:
       tap: "#"
-      type: yellow
+      type: symbol
     DOLLAR:
       tap: $
-      type: yellow
+      type: symbol
     DLLR:
       tap: $
-      type: yellow
+      type: symbol
     PERCENT:
       tap: "%"
-      type: yellow
+      type: symbol
     PRCNT:
       tap: "%"
-      type: yellow
+      type: symbol
     CARET:
       tap: ^
-      type: yellow
+      type: symbol
     AMPERSAND:
       tap: "&"
-      type: yellow
+      type: symbol
     AMPS:
       tap: "&"
-      type: yellow
+      type: symbol
     ASTERISK:
       tap: "*"
-      type: yellow
+      type: symbol
     ASTRK:
       tap: "*"
-      type: yellow
+      type: symbol
     STAR:
       tap: "*"
-      type: yellow
+      type: symbol
     LEFT_PARENTHESIS:
       tap: (
-      type: yellow
+      type: symbol
     LPAR:
       tap: (
-      type: yellow
+      type: symbol
     RIGHT_PARENTHESIS:
       tap: )
-      type: yellow
+      type: symbol
     RPAR:
       tap: )
-      type: yellow
+      type: symbol
     EQUAL:
       tap: "="
-      type: yellow
+      type: symbol
     PLUS:
       tap: +
-      type: yellow
+      type: symbol
     MINUS:
       tap: "-"
-      type: yellow
+      type: symbol
     UNDERSCORE:
       tap: _
-      type: yellow
+      type: symbol
     UNDER:
       tap: _
-      type: yellow
+      type: symbol
     SLASH:
       tap: /
-      type: yellow
+      type: symbol
     FSLH:
       tap: /
-      type: yellow
+      type: symbol
     QUESTION:
       tap: "?"
-      type: yellow
+      type: symbol
     QMARK:
       tap: "?"
-      type: yellow
+      type: symbol
     BACKSLASH:
       tap: '\'
-      type: yellow
+      type: symbol
     BSLH:
       tap: '\'
-      type: yellow
+      type: symbol
     PIPE:
       tap: "|"
-      type: yellow
+      type: symbol
     NON_US_BACKSLASH:
       tap: '\'
-      type: yellow
+      type: symbol
     PIPE2: "|"
     NON_US_BSLH:
       tap: "|"
-      type: yellow
+      type: symbol
     SEMI:
       tap: ;
-      type: yellow
+      type: symbol
     COLON:
       tap: ":"
-      type: yellow
+      type: symbol
     SINGLE_QUOTE:
       tap: "'"
-      type: yellow
+      type: symbol
     SQT:
       tap: "'"
-      type: yellow
+      type: symbol
     APOSTROPHE:
       tap: "'"
-      type: yellow
+      type: symbol
     APOS:
       tap: "'"
-      type: yellow
+      type: symbol
     DOUBLE_QUOTES:
       tap: '"'
-      type: yellow
+      type: symbol
     DQT:
       tap: '"'
-      type: yellow
+      type: symbol
     COMMA:
       tap: ","
-      type: yellow
+      type: symbol
     LESS_THAN:
       tap: <
-      type: yellow
+      type: symbol
     LT:
       tap: <
-      type: yellow
+      type: symbol
     PERIOD:
       tap: .
-      type: yellow
+      type: symbol
     DOT:
       tap: .
-      type: yellow
+      type: symbol
     GREATER_THAN:
       tap: ">"
-      type: yellow
+      type: symbol
     GT:
       tap: ">"
-      type: yellow
+      type: symbol
     LBKT:
       tap: "["
-      type: yellow
+      type: symbol
     RBKT:
       tap: "]"
-      type: yellow
+      type: symbol
     LBRC:
       tap: "{"
-      type: yellow
+      type: symbol
     RBRC:
       tap: "}"
-      type: yellow
+      type: symbol
     GRAVE:
       tap: "`"
-      type: yellow
+      type: symbol
     TILDE:
       tap: "~"
-      type: yellow
+      type: symbol
     NON_US_HASH:
       tap: "#"
-      type: yellow
+      type: symbol
     NUHS:
       tap: "#"
-      type: yellow
+      type: symbol
     TILDE2: "~"
 
     # custom values
@@ -540,16 +534,9 @@ parse_config:
     DEL: $$mdi:backspace-reverse$$
     RET: $$mdi:keyboard-return$$
 
-    C_PP: $$mdi:play-pause$$
-    C_NEXT: $$mdi:skip-forward$$
-    C_PREV: $$mdi:skip-backward$$
     C_MUTE: $$mdi:volume-mute$$
     C_VOL_UP: $$mdi:volume-plus$$
     C_VOL_DN: $$mdi:volume-minus$$
-    C_BRI_UP: $$tabler:brightness-up$$
-    C_BRI_DN: $$tabler:brightness-down$$
-    C_POWER: $$mdi:power$$
-    C_SLEEP: $$mdi:power-sleep$$
 
     TAB: $$mdi:keyboard-tab$$
     UP: $$mdi:arrow-up-bold$$
@@ -559,14 +546,30 @@ parse_config:
     PG_UP: $$mdi:transfer-up$$
     PG_DN: $$mdi:transfer-down$$
 
-    LCTRL: Ctrl
-    RCTRL: Ctrl
-    LALT: Alt
-    RALT: Alt
-    LSHIFT: Shift
-    RSHIFT: Shift
-    LGUI: Super
-    RGUI: Super
+    LCTRL:
+      tap: Ctrl
+      type: mod
+    RCTRL:
+      tap: Ctrl
+      type: mod
+    LALT:
+      tap: Alt
+      type: mod
+    RALT:
+      tap: Alt
+      type: mod
+    LSHIFT:
+      tap: Shift
+      type: mod
+    RSHIFT:
+      tap: Shift
+      type: mod
+    LGUI:
+      tap: Super
+      type: mod
+    RGUI:
+      tap: Super
+      type: mod
 
     KP_NUM: Num Lock
 

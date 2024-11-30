@@ -19,7 +19,7 @@ $(firmware): $(GLOVE_KEYMAP) Dockerfile config/glove80.conf config/default.nix
 	docker run --rm -v "$(CURDIR):/config" -e UID=$(shell id -u) -e GID=$(shell id -g) -e BRANCH=$(BRANCH) $(IMAGE)
 
 $(keymap): $(KEYMAP_CONFIG) $(GLOVE_KEYMAP) $(VENV)
-	. .venv/bin/activate; keymap -c $(KEYMAP_CONFIG) parse -z $(GLOVE_KEYMAP) -l Base Lower Symbols World Gaming Magic -o $@
+	. .venv/bin/activate; keymap -c $(KEYMAP_CONFIG) parse -z $(GLOVE_KEYMAP) -l Base Lower Symbols Gaming Magic -o $@
 
 $(svg): $(KEYMAP_CONFIG) $(keymap) $(VENV)
 	. .venv/bin/activate; keymap -c $(KEYMAP_CONFIG) draw $(keymap) >$@
