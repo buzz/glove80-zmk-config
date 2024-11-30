@@ -52,9 +52,20 @@ draw_config:
       --alt-gaming-fill: hsl(0deg, 0%, var(--alt-gaming-fill-lightness));
       --alt-gaming-stroke: hsl(0deg, 0%, var(--alt-gaming-stroke-lightness));
 
-      --blue-hue: 200deg;
-      --blue-fill: hsl(var(--blue-hue), var(--saturation), var(--fill-lightness));
-      --blue-stroke: hsl(var(--blue-hue), var(--saturation), var(--stroke-lightness));
+      --func-hue: 124deg;
+      --func-fill: hsl(var(--func-hue), var(--saturation), var(--fill-lightness));
+      --func-stroke: hsl(var(--func-hue), var(--saturation), var(--stroke-lightness));
+
+      --other-hue: 200deg;
+      --other-fill: hsl(var(--other-hue), var(--saturation), var(--fill-lightness));
+      --other-stroke: hsl(var(--other-hue), var(--saturation), var(--stroke-lightness));
+
+      --app-hue: 300deg;
+      --app-fill-lightness: 93%;
+      --app-stroke-lightness: calc(var(--app-fill-lightness) - var(--stroke-offset));
+      --app-saturation: 24%;
+      --app-fill: hsl(var(--app-hue), var(--app-saturation), var(--app-fill-lightness));
+      --app-stroke: hsl(var(--app-hue), var(--app-saturation), var(--app-stroke-lightness));
 
       --symbol-hue: 59deg;
       --symbol-saturation: 80%;
@@ -137,9 +148,19 @@ draw_config:
       text-decoration: underline;
     }
 
-    .blue rect.key {
-      fill: var(--blue-fill);
-      stroke: var(--blue-stroke);
+    .func rect.key {
+      fill: var(--func-fill);
+      stroke: var(--func-stroke);
+    }
+
+    .other rect.key {
+      fill: var(--other-fill);
+      stroke: var(--other-stroke);
+    }
+
+    .app rect.key {
+      fill: var(--app-fill);
+      stroke: var(--app-stroke);
     }
 
     .symbol rect.key {
@@ -155,46 +176,54 @@ draw_config:
       font-size: var(--tap-font-size-sm);
     }
 
+    .rgb.tap {
+      translate: 0 -10px;
+    }
+    .rgb.shifted {
+      translate: 18px 4px;
+      font-size: var(--tap-font-size);
+    }
+
 parse_config:
   raw_binding_map:
     # Function keys
     "&kp F1":
       tap: F1
-      type: blue
+      type: func
     "&kp F2":
       tap: F2
-      type: blue
+      type: func
     "&kp F3":
       tap: F3
-      type: blue
+      type: func
     "&kp F4":
       tap: F4
-      type: blue
+      type: func
     "&kp F5":
       tap: F5
-      type: blue
+      type: func
     "&kp F6":
       tap: F6
-      type: blue
+      type: func
     "&kp F7":
       tap: F7
-      type: blue
+      type: func
     "&kp F8":
       tap: F8
-      type: blue
+      type: func
     "&kp F9":
       tap: F9
-      type: blue
+      type: func
     "&f10_gaming":
       tap: F10
       hold: Gaming
-      type: blue
+      type: func
     "&kp F11":
       tap: F11
-      type: blue
+      type: func
     "&kp F12":
       tap: F12
-      type: blue
+      type: func
 
     # Symbols
     "&kp EQUAL":
@@ -215,7 +244,9 @@ parse_config:
       tap: Status
       hold: Magic
       type: magic
-    "&caps_word": CAPS WORD
+    "&caps_word":
+      tap:  CAPS WORD
+      type: other
     "&to L_DEFAULT":
       tap: Base
       hold: toggle
@@ -280,7 +311,7 @@ parse_config:
       type: symbol
     '&kp PAUSE_BREAK':
       tap: Break
-      type: fs-sm
+      type: other fs-sm
     '&kp KP_MULTIPLY':
       tap: "*"
       type: symbol
@@ -293,13 +324,15 @@ parse_config:
     '&kp KP_DOT':
       tap: .
       type: symbol
-    '&kp KP_ENTER': $$mdi:keyboard-return$$
+    '&kp KP_ENTER':
+      tap: $$mdi:keyboard-return$$
+      type: other
     '&kp PSCRN':
       tap: Print Screen
-      type: fs-sm
+      type: other fs-sm
     '&kp SLCK':
       tap: Scroll Lock
-      type: fs-sm
+      type: other fs-sm
     '&kp KP_N0': "0"
     '&kp KP_N1': "1"
     '&kp KP_N2': "2"
@@ -312,15 +345,59 @@ parse_config:
     '&kp KP_N9': "9"
 
     # Special functions
-    '&kp LC(X)': $$mdi:content-cut$$
-    '&kp LC(C)': $$mdi:content-copy$$
-    '&kp LC(V)': $$mdi:content-paste$$
-    '&kp LC(Z)': $$mdi:undo$$
-    '&kp LC(Y)': $$mdi:redo$$
+    '&kp LC(X)':
+      tap: $$mdi:content-cut$$
+      type: app
+    '&kp LC(C)':
+      tap: $$mdi:content-copy$$
+      type: app
+    '&kp LC(V)':
+      tap: $$mdi:content-paste$$
+      type: app
+    '&kp LC(Z)':
+      tap: $$mdi:undo$$
+      type: app
+    '&kp LC(Y)':
+      tap: $$mdi:redo$$
+      type: app
 
     # Magic
     "&bootloader": BOOT
     "&sys_reset": RESET
+    "&rgb_ug RGB_SPI":
+      tap: RGB Speed
+      shifted: "+"
+      type: rgb
+    "&rgb_ug RGB_SPD":
+      tap: RGB Speed
+      shifted: "-"
+      type: rgb
+    "&rgb_ug RGB_SAI":
+      tap: RGB Sat
+      shifted: "+"
+      type: rgb
+    "&rgb_ug RGB_SAD":
+      tap: RGB Sat
+      shifted: "-"
+      type: rgb
+    "&rgb_ug RGB_HUI":
+      tap: RGB Hue
+      shifted: "+"
+      type: rgb
+    "&rgb_ug RGB_HUD":
+      tap: RGB Hue
+      shifted: "-"
+      type: rgb
+    "&rgb_ug RGB_BRI":
+      tap: RGB Bri
+      shifted: "+"
+      type: rgb
+    "&rgb_ug RGB_BRD":
+      tap: RGB Bri
+      shifted: "-"
+      type: rgb
+    "&rgb_ug RGB_TOG": RGB Toggle
+    "&rgb_ug RGB_EFF": RGB Effect
     "&bt BT_CLR":
       tap: $$mdi:bluetooth-settings$$
       shifted: $$mdi:close-thick$$
@@ -525,26 +602,65 @@ parse_config:
     TILDE2: "~"
 
     # custom values
-    HOME: Home
-    INS: Ins
-    END: End
-    ESC: Esc
-    SPACE: $$mdi:keyboard-space$$
-    BSPC: $$mdi:backspace$$
-    DEL: $$mdi:backspace-reverse$$
-    RET: $$mdi:keyboard-return$$
+    HOME:
+      tap: Home
+      type: other
+    INS:
+      tap: Ins
+      type: other
+    CAPS:
+      tap: CAPS
+      type: other
+    END:
+      tap: End
+      type: other
+    ESC:
+      tap: Esc
+      type: other
+    SPACE:
+      tap: $$mdi:keyboard-space$$
+      type: other
+    BSPC:
+      tap: $$mdi:backspace$$
+      type: other
+    DEL:
+      tap: $$mdi:backspace-reverse$$
+      type: other
+    RET:
+      tap: $$mdi:keyboard-return$$
+      type: other
 
-    C_MUTE: $$mdi:volume-mute$$
-    C_VOL_UP: $$mdi:volume-plus$$
-    C_VOL_DN: $$mdi:volume-minus$$
+    C_MUTE:
+      tap: $$mdi:volume-mute$$
+      type: app
+    C_VOL_UP:
+      tap: $$mdi:volume-plus$$
+      type: app
+    C_VOL_DN:
+      tap: $$mdi:volume-minus$$
+      type: app
 
-    TAB: $$mdi:keyboard-tab$$
-    UP: $$mdi:arrow-up-bold$$
-    DOWN: $$mdi:arrow-down-bold$$
-    LEFT: $$mdi:arrow-left-bold$$
-    RIGHT: $$mdi:arrow-right-bold$$
-    PG_UP: $$mdi:transfer-up$$
-    PG_DN: $$mdi:transfer-down$$
+    TAB:
+      tap: $$mdi:keyboard-tab$$
+      type: other
+    UP:
+      tap: $$mdi:arrow-up-bold$$
+      type: other
+    DOWN:
+      tap: $$mdi:arrow-down-bold$$
+      type: other
+    LEFT:
+      tap: $$mdi:arrow-left-bold$$
+      type: other
+    RIGHT:
+      tap: $$mdi:arrow-right-bold$$
+      type: other
+    PG_UP:
+      tap: $$mdi:transfer-up$$
+      type: other
+    PG_DN:
+      tap: $$mdi:transfer-down$$
+      type: other
 
     LCTRL:
       tap: Ctrl
@@ -571,7 +687,9 @@ parse_config:
       tap: Super
       type: mod
 
-    KP_NUM: Num Lock
+    KP_NUM:
+      tap: Num Lock
+      type: other
 
   zmk_combos:
     combo_boot:
