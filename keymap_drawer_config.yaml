@@ -232,6 +232,9 @@ parse_config:
     '&degree_sign':
       tap: "°"
       type: symbol
+    '&ellipsis':
+      tap: "…"
+      type: symbol
 
     '&kp RA(A)': Ä
     '&kp RA(S)': ẞ
