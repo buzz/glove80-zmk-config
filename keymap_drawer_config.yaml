@@ -689,6 +689,9 @@ parse_config:
     RGUI:
       tap: Super
       type: mod
+    K_APP:
+      tap: App
+      type: mod
 
     KP_NUM:
       tap: Num Lock
